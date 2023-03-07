@@ -7,7 +7,7 @@
 #![allow(non_snake_case)]
 use crate::u64_from_buffer;
 use crate::WIDTH;
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 
 /// Represents a `static reference` to the
 /// `Maximum Distance Separable Matrix -> MDS_MATRIX`
@@ -15,9 +15,9 @@ use dusk_bls12_381::BlsScalar;
 ///
 /// This matrix is loaded from the `mds.bin` file where
 /// is pre-computed and represented in bytes.
-pub const MDS_MATRIX: [[BlsScalar; WIDTH]; WIDTH] = {
+pub const MDS_MATRIX: [[Scalar; WIDTH]; WIDTH] = {
     let bytes = include_bytes!("../assets/mds.bin");
-    let mut mds = [[BlsScalar::zero(); WIDTH]; WIDTH];
+    let mut mds = [[Scalar::zero(); WIDTH]; WIDTH];
     let mut k = 0;
     let mut i = 0;
 
@@ -30,7 +30,7 @@ pub const MDS_MATRIX: [[BlsScalar; WIDTH]; WIDTH] = {
             let d = u64_from_buffer(&bytes, k + 24);
             k += 32;
 
-            mds[i][j] = BlsScalar::from_raw([a, b, c, d]);
+            mds[i][j] = Scalar::from_raw([a, b, c, d]);
             j += 1;
         }
         i += 1;

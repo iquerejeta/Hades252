@@ -9,26 +9,26 @@
 //!
 //! The constants were originally computed using:
 //! https://extgit.iaik.tugraz.at/krypto/hadesmimc/blob/master/code/calc_round_numbers.py
-//! and then mapped onto `BlsScalar` in the Bls12_381 scalar field.
+//! and then mapped onto `Scalar` in the Bls12_381 scalar field.
 #![allow(non_snake_case)]
 
 use crate::u64_from_buffer;
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 
 const CONSTANTS: usize = 960;
 
 /// `ROUND_CONSTANTS` constists on a static reference
 /// that points to the pre-loaded 960 Fq constants.
 ///
-/// This 960 `BlsScalar` constants are loaded from `ark.bin`
-/// where all of the `BlsScalar`s are represented in buf.
+/// This 960 `Scalar` constants are loaded from `ark.bin`
+/// where all of the `Scalar`s are represented in buf.
 ///
 /// This round constants have been taken from:
 /// https://extgit.iaik.tugraz.at/krypto/hadesmimc/blob/master/code/calc_round_numbers.py
 /// and then mapped onto `Fq` in the Ristretto scalar field.
-pub const ROUND_CONSTANTS: [BlsScalar; CONSTANTS] = {
+pub const ROUND_CONSTANTS: [Scalar; CONSTANTS] = {
     let bytes = include_bytes!("../assets/ark.bin");
-    let mut cnst = [BlsScalar::zero(); CONSTANTS];
+    let mut cnst = [Scalar::zero(); CONSTANTS];
 
     let mut i = 0;
     let mut j = 0;
@@ -38,7 +38,7 @@ pub const ROUND_CONSTANTS: [BlsScalar; CONSTANTS] = {
         let c = u64_from_buffer(&bytes, i + 16);
         let d = u64_from_buffer(&bytes, i + 24);
 
-        cnst[j] = BlsScalar::from_raw([a, b, c, d]);
+        cnst[j] = Scalar::from_raw([a, b, c, d]);
         j += 1;
 
         i += 32;
@@ -50,16 +50,15 @@ pub const ROUND_CONSTANTS: [BlsScalar; CONSTANTS] = {
 #[cfg(test)]
 mod test {
     use super::ROUND_CONSTANTS;
-    use dusk_bls12_381::BlsScalar;
-    use dusk_bytes::Serializable;
+    use bls12_381::Scalar;
     #[test]
     fn test_round_constants() {
         // Check each element is non-zero
-        let zero = BlsScalar::zero();
+        let zero = Scalar::zero();
         let has_zero = ROUND_CONSTANTS.iter().any(|&x| x == zero);
         for ctant in ROUND_CONSTANTS.iter() {
             let bytes = ctant.to_bytes();
-            assert!(&BlsScalar::from_bytes(&bytes).unwrap() == ctant);
+            assert!(&Scalar::from_bytes(&bytes).unwrap() == ctant);
         }
         assert!(!has_zero);
     }

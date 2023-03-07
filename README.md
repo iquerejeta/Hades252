@@ -1,8 +1,9 @@
-![Build Status](https://github.com/dusk-network/hades252/workflows/Continuous%20integration/badge.svg)
-[![Repository](https://img.shields.io/badge/github-hades252-blueviolet?logo=github)](https://github.com/dusk-network/hades252)
-[![Documentation](https://img.shields.io/badge/docs-dusk--hades-blue?logo=rust)](https://docs.rs/dusk-hades/)
+![Build Status](https://github.com/iquerejeta/hades252/workflows/Continuous%20integration/badge.svg)
+[![Repository](https://img.shields.io/badge/github-hades252-blueviolet?logo=github)](https://github.com/iquerejeta/hades252)
 
 # Hades252
+Fork from Dusk Network's [original](https://github.com/dusk-network/Hades252) implementation. In this fork, instead
+of using Dusk Network's bls12-381 implementation, we use zkcrypto's [implementation](https://github.com/zkcrypto/bls12_381).
 
 Implementation of Hades252 permutation algorithm over the Bls12-381 Scalar field.
 
@@ -44,13 +45,13 @@ see [How to generate the assets](assets/HOWTO.md).
 ## Example for `ScalarStrategy`
 
 ```rust
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 use dusk_hades::{ScalarStrategy, Strategy, WIDTH};
 
 // Generate the inputs that will permute.
 // The number of values we can input is equivalent to `WIDTH`
 
-let input = vec![BlsScalar::from(1u64); dusk_hades::WIDTH];
+let input = vec![Scalar::from(1u64); dusk_hades::WIDTH];
 let mut output = input.clone();
 
 let mut strategy = ScalarStrategy::new();
@@ -74,7 +75,7 @@ let public_parameters = PublicParameters::setup(CAPACITY, &mut rand::thread_rng(
 let (ck, vk) = public_parameters.trim(CAPACITY).unwrap();;
 
 // Gen inputs
-let mut inputs = [BlsScalar::one(); WIDTH];
+let mut inputs = [Scalar::one(); WIDTH];
 
 let mut prover = Prover::new(b"Hades_Testing");
 

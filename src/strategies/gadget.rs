@@ -7,7 +7,7 @@
 use super::Strategy;
 use crate::mds_matrix::MDS_MATRIX;
 use crate::WIDTH;
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 use dusk_plonk::prelude::*;
 
 /// Implements a Hades252 strategy for `Witness` as input values.
@@ -47,7 +47,7 @@ where
 {
     fn add_round_key<'b, I>(&mut self, constants: &mut I, words: &mut [Witness])
     where
-        I: Iterator<Item = &'b BlsScalar>,
+        I: Iterator<Item = &'b Scalar>,
     {
         // Add only for the first round.
         //
@@ -77,7 +77,7 @@ where
     /// Adds a constraint for each matrix coefficient multiplication
     fn mul_matrix<'b, I>(&mut self, constants: &mut I, values: &mut [Witness])
     where
-        I: Iterator<Item = &'b BlsScalar>,
+        I: Iterator<Item = &'b Scalar>,
     {
         let mut result = [C::ZERO; WIDTH];
         self.count += 1;
@@ -111,7 +111,7 @@ where
             if self.count < Self::rounds() {
                 c = Self::next_c(constants);
             } else {
-                c = BlsScalar::zero();
+                c = Scalar::zero();
             }
 
             let constraint = Constraint::new()
@@ -150,8 +150,8 @@ mod tests {
 
     #[derive(Default)]
     struct TestCircuit {
-        i: [BlsScalar; WIDTH],
-        o: [BlsScalar; WIDTH],
+        i: [Scalar; WIDTH],
+        o: [Scalar; WIDTH],
     }
 
     impl Circuit for TestCircuit {
@@ -179,7 +179,7 @@ mod tests {
             // Copy the result of the permutation into the perm.
             perm.copy_from_slice(&i_var);
 
-            // Check that the Gadget perm results = BlsScalar perm results
+            // Check that the Gadget perm results = Scalar perm results
             i_var.iter().zip(o_var.iter()).for_each(|(p, o)| {
                 composer.assert_equal(*p, *o);
             });
@@ -189,14 +189,14 @@ mod tests {
     }
 
     /// Generate a random input and perform a permutation
-    fn hades() -> ([BlsScalar; WIDTH], [BlsScalar; WIDTH]) {
-        let mut input = [BlsScalar::zero(); WIDTH];
+    fn hades() -> ([Scalar; WIDTH], [Scalar; WIDTH]) {
+        let mut input = [Scalar::zero(); WIDTH];
 
         input
             .iter_mut()
-            .for_each(|s| *s = BlsScalar::random(&mut rand::thread_rng()));
+            .for_each(|s| *s = Scalar::random(&mut rand::thread_rng()));
 
-        let mut output = [BlsScalar::zero(); WIDTH];
+        let mut output = [Scalar::zero(); WIDTH];
 
         output.copy_from_slice(&input);
         ScalarStrategy::new().perm(&mut output);
@@ -237,8 +237,8 @@ mod tests {
         let (prover, verifier) = setup()?;
 
         // Prepare input & output
-        let i = [BlsScalar::from(5000u64); WIDTH];
-        let mut o = [BlsScalar::from(5000u64); WIDTH];
+        let i = [Scalar::from(5000u64); WIDTH];
+        let mut o = [Scalar::from(5000u64); WIDTH];
         ScalarStrategy::new().perm(&mut o);
 
         let circuit = TestCircuit { i, o };
@@ -260,12 +260,12 @@ mod tests {
         // Generate [31, 0, 0, 0, 0] as real input to the perm but build the
         // proof with [31, 31, 31, 31, 31]. This should fail on verification
         // since the Proof contains incorrect statements.
-        let x_scalar = BlsScalar::from(31u64);
+        let x_scalar = Scalar::from(31u64);
 
-        let mut i = [BlsScalar::zero(); WIDTH];
+        let mut i = [Scalar::zero(); WIDTH];
         i[1] = x_scalar;
 
-        let mut o = [BlsScalar::from(31u64); WIDTH];
+        let mut o = [Scalar::from(31u64); WIDTH];
         ScalarStrategy::new().perm(&mut o);
 
         let circuit = TestCircuit { i, o };

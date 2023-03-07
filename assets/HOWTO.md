@@ -11,16 +11,16 @@ The `ark.bin` and `mds.bin` files in this folder are generated using the snippet
 //
 // Copyright (c) DUSK NETWORK. All rights reserved.
 
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 use sha2::{Digest, Sha512};
 use std::fs;
 use std::io::Write;
 
 const CONSTANTS: usize = 960;
 
-fn constants() -> [BlsScalar; CONSTANTS] {
-    let mut cnst = [BlsScalar::zero(); CONSTANTS];
-    let mut p = BlsScalar::one();
+fn constants() -> [Scalar; CONSTANTS] {
+    let mut cnst = [Scalar::zero(); CONSTANTS];
+    let mut p = Scalar::one();
     let mut bytes = b"poseidon-for-plonk".to_vec();
 
     cnst.iter_mut().for_each(|c| {
@@ -31,7 +31,7 @@ fn constants() -> [BlsScalar; CONSTANTS] {
         let mut v = [0x00u8; 64];
         v.copy_from_slice(&bytes[0..64]);
 
-        *c = BlsScalar::from_bytes_wide(&v) + p;
+        *c = Scalar::from_bytes_wide(&v) + p;
         p = *c;
     });
 
@@ -62,16 +62,16 @@ pub(crate) fn write_to(filename: &str) -> std::io::Result<()> {
 //
 // Copyright (c) DUSK NETWORK. All rights reserved.
 
-use dusk_bls12_381::BlsScalar;
+use bls12_381::Scalar;
 use std::fs;
 use std::io::Write;
 
 const WIDTH: usize = 5;
 
-fn mds() -> [[BlsScalar; WIDTH]; WIDTH] {
-    let mut matrix = [[BlsScalar::zero(); WIDTH]; WIDTH];
-    let mut xs = [BlsScalar::zero(); WIDTH];
-    let mut ys = [BlsScalar::zero(); WIDTH];
+fn mds() -> [[Scalar; WIDTH]; WIDTH] {
+    let mut matrix = [[Scalar::zero(); WIDTH]; WIDTH];
+    let mut xs = [Scalar::zero(); WIDTH];
+    let mut ys = [Scalar::zero(); WIDTH];
 
     // Generate x and y values deterministically for the cauchy matrix
     // where x[i] != y[i] to allow the values to be inverted
@@ -81,8 +81,8 @@ fn mds() -> [[BlsScalar; WIDTH]; WIDTH] {
     // det(M) = (ad - bc) ; if a == b and c == d => det(M) =0
     // For an MDS matrix, every possible mxm submatrix, must have det(M) != 0
     (0..WIDTH).for_each(|i| {
-        xs[i] = BlsScalar::from(i as u64);
-        ys[i] = BlsScalar::from((i + WIDTH) as u64);
+        xs[i] = Scalar::from(i as u64);
+        ys[i] = Scalar::from((i + WIDTH) as u64);
     });
 
     let mut m = 0;
